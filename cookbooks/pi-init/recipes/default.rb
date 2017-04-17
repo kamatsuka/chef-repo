@@ -30,10 +30,18 @@ git '/home/pi/Phase1' do
 end
 
 file '/home/pi/Batch.tar.gz' do
-  content IO.binread('/home/pi/UBD-AIIT-Global-Project/Phase1/tree/master/AIIT_PRODUCTS_PI/Batch.tar.gz')
+  content IO.binread('/home/pi/Phase1/AIIT_PRODUCTS_PI/Batch.tar.gz')
   action  :create
 end
 
 execute 'expand_file' do
-  command 'cd /home/pi/UBD-AIIT-Global-Project/Phase1/tree/master/AIIT_PRODUCTS_PI;tar xvzf Batch.tar.gz'
+  command 'cd /home/pi;tar xvzf Batch.tar.gz'
+end
+
+cron 'sensor_batch' do
+  command '/home/pi/Batch/writer.sh' 
+  minute '*/10'
+  mailto 'a1521hk@aiit.ac.jp'
+  user 'pi'
+  action :create
 end
