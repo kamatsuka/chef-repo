@@ -28,3 +28,12 @@ git '/home/pi/Phase1' do
   user 'pi'
   action :sync
 end
+
+file '/home/pi/Batch.tar.gz' do
+  content IO.binread('/home/pi/UBD-AIIT-Global-Project/Phase1/tree/master/AIIT_PRODUCTS_PI/Batch.tar.gz')
+  action  :create
+end
+
+execute 'expand_file' do
+  command 'cd /home/pi/UBD-AIIT-Global-Project/Phase1/tree/master/AIIT_PRODUCTS_PI;tar xvzf Batch.tar.gz'
+end
