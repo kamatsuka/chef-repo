@@ -1,7 +1,7 @@
 {
-    "hostname": "flood99",
+    "role": "flood99",
     "run_list": [
-        "recipe[pi-init]"
+        "role[flood99]"
     ]
 }
 

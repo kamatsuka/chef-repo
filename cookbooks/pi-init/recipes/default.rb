@@ -17,8 +17,8 @@ apt_package 'python-smbus' do
 end
 
 execute 'change_hostname' do
-  command 'raspi-config nonint do_hostname #{hostname}'
-  not_if 'cat /boot/config.txt | grep gpu_mem | grep 128'
+  command "raspi-config nonint do_hostname #{node['pi']['host']}"
+  not_if "cat /etc/hostname | grep #{node['pi']['host']}"
 end
 
 execute 'enable_camera' do
@@ -54,15 +54,19 @@ git '/home/pi/Phase1' do
   revision 'master'
   user 'pi'
   action :sync
+  notifies :create, "file[/home/pi/Batch.tar.gz]"
 end
 
 file '/home/pi/Batch.tar.gz' do
   content IO.binread('/home/pi/Phase1/AIIT_PRODUCTS_PI/Batch.tar.gz')
-  action  :create
+  action  :nothing
+  notifies :create, "execute[expand_file]"
 end
 
 execute 'expand_file' do
   command 'cd /home/pi;tar xvzf Batch.tar.gz'
+  action :nothing
+  notifies :create, "cron[sensor_batch]"
 end
 
 cron 'sensor_batch' do

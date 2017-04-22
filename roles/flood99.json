@@ -1,0 +1,13 @@
+{
+    "name": "flood99",
+    "chef_type": "role",
+    "json_class": "Chef::Role",
+    "default_attributes": {
+      "pi": {
+         "host": "flood99"
+      }
+    },
+    "run_list": [
+        "recipe[pi-init]"
+    ]
+}
