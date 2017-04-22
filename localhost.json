@@ -1,4 +1,5 @@
 {
+    "hostname": "flood99",
     "run_list": [
         "recipe[pi-init]"
     ]

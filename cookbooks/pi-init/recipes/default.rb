@@ -4,6 +4,33 @@
 #
 # Copyright:: 2017, The Authors, All Rights Reserved.
 
+apt_package 'wpasupplicant' do
+  action :install
+end
+
+apt_package 'i2c-tools' do
+  action :install
+end
+
+apt_package 'python-smbus' do
+  action :install
+end
+
+execute 'change_hostname' do
+  command 'raspi-config nonint do_hostname #{hostname}'
+  not_if 'cat /boot/config.txt | grep gpu_mem | grep 128'
+end
+
+execute 'enable_camera' do
+  command 'raspi-config nonint do_camera 0'
+  not_if 'cat /boot/config.txt | grep gpu_mem | grep 128'
+end
+
+execute 'enable_i2c' do
+  command 'raspi-config nonint do_i2c 0'
+  only_if 'cat /boot/config.txt | grep i2c | grep off'
+end
+
 user 'pi' do
   comment 'default user'
   home '/home/pi'
