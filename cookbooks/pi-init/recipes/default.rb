@@ -4,10 +4,6 @@
 #
 # Copyright:: 2017, The Authors, All Rights Reserved.
 
-apt_package 'wpasupplicant' do
-  action :install
-end
-
 apt_package 'i2c-tools' do
   action :install
 end
@@ -29,6 +25,23 @@ end
 execute 'enable_i2c' do
   command 'raspi-config nonint do_i2c 0'
   only_if 'cat /boot/config.txt | grep i2c | grep off'
+end
+
+execute 'set_timezone' do
+  command 'cp -f /usr/share/zoneinfo/Asia/Brunei /etc/localtime'
+  not_if 'cat /etc/localtime | grep BNT-8'
+end
+
+apt_package 'wpasupplicant' do
+  action :install
+end
+
+template '/etc/wpa_supplicant/wpa_supplicant.conf' do
+  source 'wpa_supplicant.conf'
+end
+
+apt_package 'avahi-daemon' do
+  action :install
 end
 
 user 'pi' do
