@@ -17,6 +17,11 @@ execute 'change_hostname' do
   not_if "cat /etc/hostname | grep #{node['pi']['host']}"
 end
 
+execute 'enable_sshd' do
+  command "raspi-config nonint do_ssh 0"
+  not_if "systemctl list-unit-files -t service | grep ssh.service | grep enable"
+end
+
 execute 'enable_camera' do
   command 'raspi-config nonint do_camera 0'
   not_if 'cat /boot/config.txt | grep gpu_mem | grep 128'
