@@ -15,6 +15,7 @@ end
 execute 'change_hostname' do
   command "raspi-config nonint do_hostname #{node['pi']['host']}"
   not_if "cat /etc/hostname | grep #{node['pi']['host']}"
+#  notifies :request_reboot, "reboot[os_requires_reboot]"
 end
 
 execute 'enable_sshd' do
@@ -49,6 +50,10 @@ apt_package 'avahi-daemon' do
   action :install
 end
 
+#reboot 'os_requires_reboot' do
+#  action :nothing
+#end
+
 user 'pi' do
   comment 'default user'
   home '/home/pi'
@@ -72,17 +77,11 @@ git '/home/pi/Phase1' do
   revision 'master'
   user 'pi'
   action :sync
-  notifies :create, "file[/home/pi/Batch.tar.gz]"
-end
-
-file '/home/pi/Batch.tar.gz' do
-  content IO.binread('/home/pi/Phase1/AIIT_PRODUCTS_PI/Batch.tar.gz')
-  action  :nothing
-  notifies :create, "execute[expand_file]"
+  notifies :run, "execute[expand_file]"
 end
 
 execute 'expand_file' do
-  command 'cd /home/pi;tar xvzf Batch.tar.gz'
+  command 'cd /home/pi;tar xvzf /home/pi/Phase1/AIIT_PRODUCTS_PI/Batch.tar.gz'
   action :nothing
   notifies :create, "cron[sensor_batch]"
 end
@@ -94,3 +93,5 @@ cron 'sensor_batch' do
   user 'pi'
   action :create
 end
+
+
