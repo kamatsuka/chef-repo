@@ -1,0 +1,7 @@
+DEPENDENCIES
+  pi
+    path: .
+    metadata: true
+
+GRAPH
+  pi (0.1.0)

@@ -12,6 +12,7 @@
       }
     },
     "run_list": [
-        "recipe[pi-init]"
+        "recipe[setup]",
+        "recipe[deploy]"
     ]
 }

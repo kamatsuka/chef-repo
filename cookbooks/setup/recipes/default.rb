@@ -15,7 +15,13 @@ end
 execute 'change_hostname' do
   command "raspi-config nonint do_hostname #{node['pi']['host']}"
   not_if "cat /etc/hostname | grep #{node['pi']['host']}"
+  notifies :run, "execute[reboot]"
 #  notifies :request_reboot, "reboot[os_requires_reboot]"
+end
+
+execute 'reboot' do
+  command "reboot"
+  action :nothing
 end
 
 execute 'enable_sshd' do
@@ -46,13 +52,34 @@ template '/etc/wpa_supplicant/wpa_supplicant.conf' do
   source 'wpa_supplicant.conf'
 end
 
+template '/etc/network/interfaces' do
+  source 'interfaces'
+end
+
 apt_package 'avahi-daemon' do
   action :install
+end
+
+template '/root/chef_runonce.sh' do
+  source 'chef_runonce.sh'
+  notifies :create, "cron[chef_runonce]"
+end
+
+cron 'chef_runonce' do
+  command '/root/chef_runonce.sh > /root/chef_runonce.log' 
+  minute '0'
+  hour '*'
+  mailto 'a1521hk@aiit.ac.jp'
+  action :nothing
 end
 
 #reboot 'os_requires_reboot' do
 #  action :nothing
 #end
+
+apt_package 'ruby-shadow' do
+  action :install
+end
 
 user 'pi' do
   comment 'default user'
@@ -67,31 +94,3 @@ directory '/home/pi' do
   mode '0755'
   action :create
 end
-
-apt_package 'git' do
-  action :install
-end
-
-git '/home/pi/Phase1' do
-  repository 'https://hkamatsuka:fwih9452@github.com/UBD-AIIT-Global-Project/Phase1.git'
-  revision 'master'
-  user 'pi'
-  action :sync
-  notifies :run, "execute[expand_file]"
-end
-
-execute 'expand_file' do
-  command 'cd /home/pi;tar xvzf /home/pi/Phase1/AIIT_PRODUCTS_PI/Batch.tar.gz'
-  action :nothing
-  notifies :create, "cron[sensor_batch]"
-end
-
-cron 'sensor_batch' do
-  command '/home/pi/Batch/writer.sh' 
-  minute '*/10'
-  mailto 'a1521hk@aiit.ac.jp'
-  user 'pi'
-  action :create
-end
-
-
