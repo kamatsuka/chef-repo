@@ -4,6 +4,8 @@
 #
 # Copyright:: 2017, The Authors, All Rights Reserved.
 
+aaa
+
 apt_package 'i2c-tools' do
   action :install
 end
@@ -63,6 +65,9 @@ end
 template '/root/chef_runonce.sh' do
   source 'chef_runonce.sh'
   notifies :create, "cron[chef_runonce]"
+  owner 'root'
+  group 'root'
+  mode '0755'
 end
 
 cron 'chef_runonce' do
